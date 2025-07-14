@@ -39,3 +39,11 @@ type
       port*: int
       routesByMethod*: Table[HttpMethod, seq[Route]]  # Method-grouped routes
       exactRoutes*: Table[string, Route]
+      
+    SendFileOptions* = object
+      headers*: Table[string, string]
+      root*: string
+      maxAge*: int
+      lastModified*: bool
+      etag*: bool
+      dotfiles*: string  # "allow", "deny", "ignore"

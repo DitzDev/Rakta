@@ -27,7 +27,17 @@ proc patternToRegex(pattern: string): Regex =
   return compiledRegex
 
 proc matchRoute(route: Route, path: string): (bool, Table[string, string]) =
-  # pre-compiled regex
+  # Handle exact routes (static routes)
+  if route.isExact:
+    if route.pattern == path:
+      return (true, initTable[string, string]())
+    else:
+      return (false, initTable[string, string]())
+  
+  # Handle parametric routes
+  if route.compiledRegex == nil:
+    return (false, initTable[string, string]())
+  
   var matches: array[10, string]
   let matched = path.match(route.compiledRegex, matches)
   
@@ -42,7 +52,7 @@ proc matchRoute(route: Route, path: string): (bool, Table[string, string]) =
   return (true, params)
 
 proc addRoute*(app: App, httpMethod: HttpMethod, pattern: string, handler: Handler) =
-  let isExact = not pattern.contains(':')  # Static route detection
+  let isExact = not pattern.contains(':')
   
   let route = Route(
     httpMethod: httpMethod,

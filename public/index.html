@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rakta Framework - Full Stack Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .demo-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .demo-card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #333;
+        }
+
+        .response-area {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .response-area pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-online {
+            background: #00b894;
+            animation: pulse 2s infinite;
+        }
+
+        .status-offline {
+            background: #e17055;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .features {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+        }
+
+        .demo-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .user-item {
+            background: white;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .demo-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Rakta Framework</h1>
+            <p>Full Stack Web Framework for Nim Language</p>
+            <p><span class="status-indicator status-online"></span>Server Status: Online</p>
+        </div>
+
+        <div class="features">
+            <h2>Framework Features</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">🔧</div>
+                    <h4>Backend API</h4>
+                    <p>REST API endpoints with JSON responses</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📁</div>
+                    <h4>Static Files</h4>
+                    <p>Serve static files and assets</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🍪</div>
+                    <h4>Cookie Management</h4>
+                    <p>Set and read cookies easily</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌐</div>
+                    <h4>CORS Support</h4>
+                    <p>Cross-origin resource sharing</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📦</div>
+                    <h4>File Downloads</h4>
+                    <p>Send files with custom headers</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Async/Await</h4>
+                    <p>Non-blocking async operations</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-grid">
+            <!-- API Status Demo -->
+            <div class="demo-card">
+                <h3>📊 API Status</h3>
+                <button class="btn" onclick="checkApiStatus()">Check API Status</button>
+                <div class="loading" id="status-loading">Loading...</div>
+                <div class="response-area" id="status-response" style="display: none;"></div>
+            </div>
+
+            <!-- Hello API Demo -->
+            <div class="demo-card">
+                <h3>👋 Hello API</h3>
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" placeholder="Enter your name" value="World">
+                </div>
+                <div class="form-group">
+                    <label for="language">Language:</label>
+                    <select id="language">
+                        <option value="">English</option>
+                        <option value="id">Indonesian</option>
+                        <option value="es">Spanish</option>
+                        <option value="fr">French</option>
+                        <option value="de">German</option>
+                        <option value="ja">Japanese</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="sayHello()">Say Hello</button>
+                <div class="loading" id="hello-loading">Loading...</div>
+                <div class="response-area" id="hello-response" style="display: none;"></div>
+            </div>
+
+            <!-- User API Demo -->
+            <div class="demo-card">
+                <h3>👤 User API</h3>
+                <div class="form-group">
+                    <label for="userId">User ID:</label>
+                    <input type="number" id="userId" placeholder="Enter user ID" value="1">
+                </div>
+                <button class="btn" onclick="getUser()">Get User</button>
+                <div class="loading" id="user-loading">Loading...</div>
+                <div class="response-area" id="user-response" style="display: none;"></div>
+            </div>
+
+            <!-- POST Data Demo -->
+            <div class="demo-card">
+                <h3>📤 POST Data</h3>
+                <div class="form-group">
+                    <label for="postData">JSON Data:</label>
+                    <textarea id="postData" rows="4" placeholder="Enter JSON data">{"message": "Hello from frontend!", "user": "demo"}</textarea>
+                </div>
+                <button class="btn" onclick="postData()">Send Data</button>
+                <div class="loading" id="post-loading">Loading...</div>
+                <div class="response-area" id="post-response" style="display: none;"></div>
+            </div>
+
+            <!-- Cookie Demo -->
+            <div class="demo-card">
+                <h3>🍪 Cookie Management</h3>
+                <div class="form-group">
+                    <label for="cookieValue">Cookie Value:</label>
+                    <input type="text" id="cookieValue" placeholder="Enter cookie value" value="test-value">
+                </div>
+                <button class="btn" onclick="setCookie()">Set Cookie</button>
+                <button class="btn btn-secondary" onclick="getCookie()">Get Cookie</button>
+                <div class="loading" id="cookie-loading">Loading...</div>
+                <div class="response-area" id="cookie-response" style="display: none;"></div>
+            </div>
+
+            <!-- Demo Data -->
+            <div class="demo-card">
+                <h3>📋 Demo Data</h3>
+                <button class="btn" onclick="getDemoData()">Load Demo Data</button>
+                <div class="loading" id="demo-loading">Loading...</div>
+                <div class="demo-data" id="demo-data" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Rakta Framework - Built with ❤️ in Nim</p>
+            <p>This demo showcases both backend API and frontend capabilities</p>
+        </div>
+    </div>
+
+    <script>
+        // API Helper Functions
+        async function apiRequest(url, options = {}) {
+            const response = await fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            });
+            return await response.json();
+        }
+
+        function showLoading(id) {
+            document.getElementById(id + '-loading').style.display = 'block';
+            const responseEl = document.getElementById(id + '-response');
+            if (responseEl) responseEl.style.display = 'none';
+        }
+
+        function hideLoading(id) {
+            document.getElementById(id + '-loading').style.display = 'none';
+        }
+
+        function showResponse(id, data) {
+            hideLoading(id);
+            const responseEl = document.getElementById(id + '-response');
+            responseEl.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            responseEl.style.display = 'block';
+        }
+
+        // Demo Functions
+        async function checkApiStatus() {
+            showLoading('status');
+            try {
+                const data = await apiRequest('/api/status');
+                showResponse('status', data);
+            } catch (error) {
+                showResponse('status', { error: error.message });
+            }
+        }
+
+        async function sayHello() {
+            showLoading('hello');
+            const name = document.getElementById('name').value;
+            const lang = document.getElementById('language').value;
+            
+            try {
+                const params = new URLSearchParams();
+                if (name) params.append('name', name);
+                if (lang) params.append('lang', lang);
+                
+                const data = await apiRequest('/api/hello?' + params.toString());
+                showResponse('hello', data);
+            } catch (error) {
+                showResponse('hello', { error: error.message });
+            }
+        }
+
+        async function getUser() {
+            showLoading('user');
+            const userId = document.getElementById('userId').value;
+            
+            try {
+                const data = await apiRequest('/api/users/' + userId);
+                showResponse('user', data);
+            } catch (error) {
+                showResponse('user', { error: error.message });
+            }
+        }
+
+        async function postData() {
+            showLoading('post');
+            const postData = document.getElementById('postData').value;
+            
+            try {
+                const jsonData = JSON.parse(postData);
+                const data = await apiRequest('/api/data', {
+                    method: 'POST',
+                    body: JSON.stringify(jsonData)
+                });
+                showResponse('post', data);
+            } catch (error) {
+                showResponse('post', { error: error.message });
+            }
+        }
+
+        async function setCookie() {
+            showLoading('cookie');
+            const value = document.getElementById('cookieValue').value;
+            
+            try {
+                const data = await apiRequest('/api/cookie/set?value=' + encodeURIComponent(value));
+                showResponse('cookie', data);
+            } catch (error) {
+                showResponse('cookie', { error: error.message });
+            }
+        }
+
+        async function getCookie() {
+            showLoading('cookie');
+            
+            try {
+                const data = await apiRequest('/api/cookie/get');
+                showResponse('cookie', data);
+            } catch (error) {
+                showResponse('cookie', { error: error.message });
+            }
+        }
+
+        async function getDemoData() {
+            showLoading('demo');
+            
+            try {
+                const data = await apiRequest('/api/demo-data');
+                hideLoading('demo');
+                
+                const demoDataEl = document.getElementById('demo-data');
+                demoDataEl.innerHTML = `
+                    <h4>Users:</h4>
+                    ${data.users.map(user => `
+                        <div class="user-item">
+                            <strong>${user.name}</strong> (${user.role}) - ID: ${user.id}
+                        </div>
+                    `).join('')}
+                    <h4>Server Stats:</h4>
+                    <div class="user-item">
+                        <strong>Total Users:</strong> ${data.stats.totalUsers}<br>
+                        <strong>Active Users:</strong> ${data.stats.activeUsers}<br>
+                        <strong>Server Uptime:</strong> ${data.stats.serverUptime}
+                    </div>
+                `;
+                demoDataEl.style.display = 'block';
+            } catch (error) {
+                hideLoading('demo');
+                document.getElementById('demo-data').innerHTML = '<p>Error: ' + error.message + '</p>';
+                document.getElementById('demo-data').style.display = 'block';
+            }
+        }
+
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiStatus();
+        });
+    </script>
+</body>
+</html>
