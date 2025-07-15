@@ -4,7 +4,7 @@ import Rakta
 let appEg = newApp()
 
 appEg.use(corsMiddleware())
-appEg.use(serveStatic("public"))
+appEg.use(appEg.serveStatic("public"))
 
 appEg.use(proc(ctx: Context): Future[void] {.async.} =
   echo "Incoming request to ", ctx.req.path
@@ -12,7 +12,11 @@ appEg.use(proc(ctx: Context): Future[void] {.async.} =
 )
 
 appEg.get("/", proc(ctx: Context): Future[void] {.async.} =
-  await ctx.sendFile("public/index.html")
+  await ctx.sendFile("index.html")
+)
+
+appEg.get("/test-cors", proc(ctx: Context): Future[void] {.async.} =
+  await ctx.sendFile("public/tests/test_cors.html")
 )
 
 appEg.get("/api/status", proc(ctx: Context): Future[void] {.async.} =

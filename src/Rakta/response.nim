@@ -138,19 +138,22 @@ proc sendFile*(ctx: Context, filePath: string, options: SendFileOptions = newSen
     return
   
   var actualFilePath: string
- 
+  
+  # Priority: options.root > app.staticRoot > filePath as-is
   if options.root != "":
     actualFilePath = options.root / filePath
+  elif ctx.app.staticRoot != "":
+    actualFilePath = ctx.app.staticRoot / filePath
   else:
     actualFilePath = filePath
   
   actualFilePath = expandFilename(actualFilePath)
- 
+  
   if not fileExists(actualFilePath):
     discard ctx.status(Http404)
     await ctx.send("File not found")
     return
- 
+  
   if options.dotfiles == "deny" and isHiddenFile(actualFilePath):
     discard ctx.status(Http403)
     await ctx.send("Forbidden")
@@ -167,7 +170,6 @@ proc sendFile*(ctx: Context, filePath: string, options: SendFileOptions = newSen
     let mimeType = getMimeTypeFromExt(ext)
     
     discard ctx.setHeader("Content-Type", mimeType)
-    
     discard ctx.setHeader("Content-Length", $content.len)
     
     for key, value in options.headers.pairs:
@@ -199,4 +201,4 @@ proc sendFile*(ctx: Context, filePath: string, options: SendFileOptions = newSen
 proc sendFile*(ctx: Context, filePath: string, headers: Table[string, string]): Future[void] {.async.} =
   var options = newSendFileOptions()
   options.headers = headers
-  await ctx.sendFile(filePath, options) 
+  await ctx.sendFile(filePath, options)

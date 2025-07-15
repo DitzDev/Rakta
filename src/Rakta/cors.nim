@@ -1,7 +1,7 @@
 import asyncdispatch, httpcore, strutils
 import types, response, context
 
-proc corsMiddleware*(allowOrigin: string = "*", allowMethods: string = "GET,POST,PUT,DELETE", allowHeaders: string = "Content-Type"): Handler =
+proc corsMiddleware*(allowOrigin: string = "*", allowMethods: string = "GET,HEAD,PUT,PATCH,POST,DELETE", allowHeaders: string = "Content-Type"): Handler =
   return proc(ctx: Context): Future[void] {.async.} =
     discard ctx.setHeader("Access-Control-Allow-Origin", allowOrigin)
     discard ctx.setHeader("Access-Control-Allow-Methods", allowMethods)

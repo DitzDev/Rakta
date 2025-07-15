@@ -37,6 +37,7 @@ type
       routes*: seq[Route]
       middlewares*: seq[Handler]
       port*: int
+      staticRoot*: string
       routesByMethod*: Table[HttpMethod, seq[Route]]  # Method-grouped routes
       exactRoutes*: Table[string, Route]
       
