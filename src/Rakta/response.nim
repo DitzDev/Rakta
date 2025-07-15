@@ -124,7 +124,8 @@ proc getCookie*(ctx: Context, name: string): string =
 
 proc getQuery*(ctx: Context, name: string): string =
   if ctx.req.query.hasKey(name):
-    return ctx.req.query[name]
+    let value = ctx.req.query[name]
+    return value
   return ""
 
 proc getParam*(ctx: Context, name: string): string =

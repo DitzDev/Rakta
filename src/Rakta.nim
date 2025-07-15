@@ -42,7 +42,11 @@ proc use*(app: App, middleware: Handler) =
   app.middlewares.add(middleware)
 
 proc handleRequest(app: App, httpReq: asynchttpserver.Request): Future[void] {.async, gcsafe.} =
-  let req = newRequest(httpReq.reqMethod, httpReq.url.path, httpReq.headers, httpReq.body)
+  var fullUrl = httpReq.url.path
+  if httpReq.url.query.len > 0:
+    fullUrl = fullUrl & "?" & httpReq.url.query
+  
+  let req = newRequest(httpReq.reqMethod, fullUrl, httpReq.headers, httpReq.body)
   let res = newResponse()
   let ctx = newContext(req, res, app)
   

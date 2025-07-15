@@ -37,7 +37,7 @@ proc newRequest*(httpMethod: HttpMethod, path: string, headers: HttpHeaders = ne
     query: parseQueryParams(uri),
     cookies: initTable[string, string]()
   )
-
+    
   if headers.hasKey("Cookie"):
     result.cookies = parseCookies(headers["Cookie"])
 
