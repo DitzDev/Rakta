@@ -7,7 +7,7 @@ license       = "MIT"
 srcDir        = "src"
 
 skipFiles = @["todo.markdown"]
-skipDirs = @["tests", "public", "assets"]
+skipDirs = @["tests", "public"]
 
 # Dependencies
 
