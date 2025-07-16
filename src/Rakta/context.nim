@@ -60,4 +60,17 @@ proc newContext*(req: Request, res: Response, app: App): Context =
   )
 
 proc next*(ctx: Context): Future[void] {.async.} =
+  ## Proceeds to the next middleware or route handler in the chain.
+  ## 
+  ## This function signals that the current middleware has completed its
+  ## processing and the next middleware or route handler should be executed.
+  ## Must be called within middleware to continue the request processing.
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   app.use(proc(ctx: Context): Future[void] {.async.} =
+  ##     echo "Processing request"
+  ##     await ctx.next()  # Continue to next middleware/handler
+  ##   )
+  ##   ```
   ctx.nextCalled = true

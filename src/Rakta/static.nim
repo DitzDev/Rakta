@@ -85,6 +85,6 @@ proc serveStatic*(staticDir: string, urlPrefix: string = ""): Handler =
       echo "Error serving static file: ", e.msg
       await ctx.next()
 
-# Overload untuk backward compatibility
+# Overload for backward compatibility
 proc serveStatic*(staticDir: string): Handler =
   return serveStatic(staticDir, "")

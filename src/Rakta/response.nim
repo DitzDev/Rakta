@@ -77,14 +77,70 @@ proc generateETag(filePath: string, fileInfo: FileInfo): string =
   return "\"" & $mtime & "-" & $size & "\""
 
 proc status*(ctx: Context, code: HttpCode): Context =
+  ## Sets the HTTP status code for the response.
+  ## 
+  ## This function sets the status code that will be sent to the client.
+  ## Returns the context for method chaining.
+  ## 
+  ## Parameters:
+  ##   code: HTTP status code (e.g., Http200, Http404, Http500)
+  ## 
+  ## Returns:
+  ##   Context: The same context for method chaining
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   discard ctx.status(Http404)
+  ##   await ctx.send("Not Found")
+  ##   
+  ##   # Method chaining
+  ##   await ctx.status(Http200).json(%*{"success": true})
+  ##   ```
   ctx.res.status = code
   return ctx
 
 proc setHeader*(ctx: Context, name: string, value: string): Context =
+  ## Sets a response header with the specified name and value.
+  ## 
+  ## This function adds or updates a header in the HTTP response.
+  ## Returns the context for method chaining.
+  ## 
+  ## Parameters:
+  ##   name: Header name (e.g., "Content-Type", "Cache-Control")
+  ##   value: Header value
+  ## 
+  ## Returns:
+  ##   Context: The same context for method chaining
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   discard ctx.setHeader("Content-Type", "application/json")
+  ##   discard ctx.setHeader("Cache-Control", "no-cache")
+  ##   ```
   ctx.res.headers[name] = value
   return ctx
 
 proc setCookie*(ctx: Context, name: string, value: string, httpOnly: bool = false, secure: bool = false, sameSite: string = "Lax"): Context =
+  ## Sets a cookie in the HTTP response.
+  ## 
+  ## This function adds a Set-Cookie header to the response with the specified
+  ## cookie name, value, and security options.
+  ## 
+  ## Parameters:
+  ##   name: Cookie name
+  ##   value: Cookie value
+  ##   httpOnly: If true, cookie is only accessible via HTTP (not JavaScript)
+  ##   secure: If true, cookie is only sent over HTTPS
+  ##   sameSite: SameSite attribute ("Strict", "Lax", or "None")
+  ## 
+  ## Returns:
+  ##   Context: The same context for method chaining
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   discard ctx.setCookie("session", "abc123", httpOnly = true, secure = true)
+  ##   discard ctx.setCookie("theme", "dark", sameSite = "Strict")
+  ##   ```
   var cookieValue = name & "=" & value
   if httpOnly:
     cookieValue.add("; HttpOnly")
@@ -99,12 +155,38 @@ proc setCookie*(ctx: Context, name: string, value: string, httpOnly: bool = fals
   return ctx
 
 proc send*(ctx: Context, content: string): Future[void] {.async.} =
+  ## Sends a plain text response to the client.
+  ## 
+  ## This function sends the specified content as the response body.
+  ## The response is marked as sent to prevent further modifications.
+  ## 
+  ## Parameters:
+  ##   content: Text content to send to the client
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   await ctx.send("Hello World")
+  ##   await ctx.send("Error: Resource not found")
+  ##   ```
   if ctx.res.sent:
     return
   ctx.res.body = content
   ctx.res.sent = true
 
 proc json*(ctx: Context, data: JsonNode): Future[void] {.async.} =
+  ## Sends a JSON response to the client.
+  ## 
+  ## This function sets the Content-Type header to application/json and
+  ## sends the JSON data as the response body.
+  ## 
+  ## Parameters:
+  ##   data: JsonNode containing the data to send
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   await ctx.json(%*{"message": "Hello", "status": "success"})
+  ##   await ctx.json(%*{"users": [{"id": 1, "name": "John"}]})
+  ##   ```
   if ctx.res.sent:
     return
   discard ctx.setHeader("Content-Type", "application/json")
@@ -112,28 +194,119 @@ proc json*(ctx: Context, data: JsonNode): Future[void] {.async.} =
   ctx.res.sent = true
 
 proc jsonBody*(ctx: Context): JsonNode =
+  ## Parses the request body as JSON.
+  ## 
+  ## This function attempts to parse the request body as JSON and returns
+  ## the parsed JsonNode. If parsing fails, returns a null JsonNode.
+  ## 
+  ## Returns:
+  ##   JsonNode: Parsed JSON data or null if parsing fails
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   let userData = ctx.jsonBody()
+  ##   if userData.hasKey("name"):
+  ##     echo "User name: ", userData["name"].getStr()
+  ##   ```
   try:
     return parseJson(ctx.req.body)
   except:
     return newJNull()
 
 proc getCookie*(ctx: Context, name: string): string =
+  ## Retrieves a cookie value by name from the request.
+  ## 
+  ## This function looks up a cookie in the request headers and returns
+  ## its value. If the cookie is not found, returns an empty string.
+  ## 
+  ## Parameters:
+  ##   name: Cookie name to retrieve
+  ## 
+  ## Returns:
+  ##   string: Cookie value or empty string if not found
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   let sessionId = ctx.getCookie("session")
+  ##   if sessionId != "":
+  ##     echo "Session ID: ", sessionId
+  ##   ```
   if ctx.req.cookies.hasKey(name):
     return ctx.req.cookies[name]
   return ""
 
 proc getQuery*(ctx: Context, name: string): string =
+  ## Retrieves a query parameter value by name from the request URL.
+  ## 
+  ## This function extracts a query parameter from the request URL.
+  ## If the parameter is not found, returns an empty string.
+  ## 
+  ## Parameters:
+  ##   name: Query parameter name to retrieve
+  ## 
+  ## Returns:
+  ##   string: Query parameter value or empty string if not found
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   # For URL: /search?q=hello&lang=en
+  ##   let searchQuery = ctx.getQuery("q")      # Returns "hello"
+  ##   let language = ctx.getQuery("lang")      # Returns "en"
+  ##   let missing = ctx.getQuery("missing")    # Returns ""
+  ##   ```
   if ctx.req.query.hasKey(name):
     let value = ctx.req.query[name]
     return value
   return ""
 
 proc getParam*(ctx: Context, name: string): string =
+  ## Retrieves a route parameter value by name.
+  ## 
+  ## This function extracts a parameter from the route pattern.
+  ## Route parameters are defined with colon syntax (e.g., "/users/:id").
+  ## If the parameter is not found, returns an empty string.
+  ## 
+  ## Parameters:
+  ##   name: Route parameter name to retrieve
+  ## 
+  ## Returns:
+  ##   string: Route parameter value or empty string if not found
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   # For route "/users/:id" and URL "/users/123"
+  ##   let userId = ctx.getParam("id")  # Returns "123"
+  ##   
+  ##   # For route "/posts/:category/:slug"
+  ##   let category = ctx.getParam("category")
+  ##   let slug = ctx.getParam("slug")
+  ##   ```
   if ctx.params.hasKey(name):
     return ctx.params[name]
   return ""
 
 proc sendFile*(ctx: Context, filePath: string, options: SendFileOptions = newSendFileOptions()): Future[void] {.async.} =
+  ## Sends a file to the client with advanced options.
+  ## 
+  ## This function sends a file as the response with proper MIME type detection,
+  ## caching headers, and security options. Supports custom headers and file
+  ## serving options.
+  ## 
+  ## Parameters:
+  ##   filePath: Path to the file to send
+  ##   options: SendFileOptions with headers, caching, and security settings
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   # Basic file sending
+  ##   await ctx.sendFile("index.html")
+  ##   
+  ##   # With custom options
+  ##   var options = newSendFileOptions()
+  ##   options.maxAge = 3600  # Cache for 1 hour
+  ##   options.etag = true
+  ##   await ctx.sendFile("static/app.js", options)
+  ##   ```
   if ctx.res.sent:
     return
   
@@ -199,6 +372,24 @@ proc sendFile*(ctx: Context, filePath: string, options: SendFileOptions = newSen
     await ctx.send("Internal Server Error")
 
 proc sendFile*(ctx: Context, filePath: string, headers: Table[string, string]): Future[void] {.async.} =
+  ## Sends a file to the client with custom headers.
+  ## 
+  ## This is a convenience overload that sends a file with custom headers.
+  ## The file is sent with appropriate MIME type detection and the specified
+  ## custom headers.
+  ## 
+  ## Parameters:
+  ##   filePath: Path to the file to send
+  ##   headers: Table of custom headers to include in the response
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   let customHeaders = {
+  ##     "Content-Disposition": "attachment; filename=document.pdf",
+  ##     "X-Custom-Header": "MyValue"
+  ##   }.toTable()
+  ##   await ctx.sendFile("files/document.pdf", customHeaders)
+  ##   ```
   var options = newSendFileOptions()
   options.headers = headers
   await ctx.sendFile(filePath, options)
