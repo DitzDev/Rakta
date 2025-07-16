@@ -3,6 +3,17 @@ import Rakta/types, Rakta/router, Rakta/response, Rakta/context, Rakta/cors, Rak
 
 export types, response, context, cors
 
+# Export all HTTP status codes from httpcore
+# This allows users to access them directly without needing to import httpcore.
+export
+  Http100, Http101, Http102, Http103,
+  Http200, Http201, Http202, Http203, Http204, Http205, Http206, Http207, Http208, Http226,
+  Http300, Http301, Http302, Http303, Http304, Http305, Http307, Http308,
+  Http400, Http401, Http402, Http403, Http404, Http405, Http406, Http407, Http408, Http409, Http410,
+  Http411, Http412, Http413, Http414, Http415, Http416, Http417, Http418, Http421, Http422, Http423,
+  Http424, Http425, Http426, Http428, Http429, Http431, Http451,
+  Http500, Http501, Http502, Http503, Http504, Http505, Http506, Http507, Http508, Http510, Http511
+
 proc addBrandingHeaders(ctx: Context): Future[void] {.async, gcsafe.} =
   discard ctx.setHeader("X-Powered-By", "Rakta")
   discard ctx.setHeader("X-Rakta-Version", "0.1.0")
