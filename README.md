@@ -5,7 +5,7 @@
 <h1 align="center">Rakta</h1>
 
 <p align="center">
-  <b>Powerful, Fast, and Minimalist Web Framework for Nim</b>  
+  <b>Express.js like, Powerful, Fast, and Minimalist Web Framework for Nim</b>  
   <br>
   <i>Focus on your backend.</i>
 </p>
@@ -34,7 +34,7 @@
 ## Installation
 
 ```bash
-nimble install Rakta
+nimble install rakta
 ```
 
 ## Quick Start
