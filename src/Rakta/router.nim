@@ -13,7 +13,6 @@ proc extractParamNames(pattern: string): seq[string] =
     start = pattern.find(regex, matches, start) + matches[0].len + 1
 
 proc patternToRegex(pattern: string): Regex =
-  # Cache regex compilation
   if regexCache.hasKey(pattern):
     return regexCache[pattern]
   
@@ -27,14 +26,12 @@ proc patternToRegex(pattern: string): Regex =
   return compiledRegex
 
 proc matchRoute(route: Route, path: string): (bool, Table[string, string]) =
-  # Handle exact routes (static routes)
   if route.isExact:
     if route.pattern == path:
       return (true, initTable[string, string]())
     else:
       return (false, initTable[string, string]())
   
-  # Handle parametric routes
   if route.compiledRegex == nil:
     return (false, initTable[string, string]())
   
@@ -51,38 +48,34 @@ proc matchRoute(route: Route, path: string): (bool, Table[string, string]) =
   
   return (true, params)
 
-proc addRoute*(app: App, httpMethod: HttpMethod, pattern: string, handler: Handler) =
+proc addRoute*(app: App, httpMethod: HttpMethod, pattern: string, handler: Handler, middlewares: seq[Handler] = @[]) =
   let isExact = not pattern.contains(':')
   
   let route = Route(
     httpMethod: httpMethod,
     pattern: pattern,
     handler: handler,
+    middlewares: middlewares,
     paramNames: if isExact: @[] else: extractParamNames(pattern),
     compiledRegex: if isExact: nil else: patternToRegex(pattern),
     isExact: isExact
   )
-  
-  # Cache exact routes for O(1) lookup
+
   if isExact:
     let exactKey = $httpMethod & ":" & pattern
     app.exactRoutes[exactKey] = route
-  
-  # Group by method
+
   if not app.routesByMethod.hasKey(httpMethod):
     app.routesByMethod[httpMethod] = @[]
   app.routesByMethod[httpMethod].add(route)
   
   app.routes.add(route)
 
-# Optimized route finding - O(routes_per_method) instead of O(all_routes)
 proc findRoute*(app: App, httpMethod: HttpMethod, path: string): (Route, Table[string, string]) =
-  # Quick path for exact matches (static routes)
   let exactKey = $httpMethod & ":" & path
   if app.exactRoutes.hasKey(exactKey):
     return (app.exactRoutes[exactKey], initTable[string, string]())
-  
-  # Check method-grouped routes
+ 
   if app.routesByMethod.hasKey(httpMethod):
     for route in app.routesByMethod[httpMethod]:
       let (matched, params) = matchRoute(route, path)

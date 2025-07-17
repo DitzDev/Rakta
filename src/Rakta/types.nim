@@ -7,6 +7,8 @@ type
       params*: Table[string, string]
       nextCalled*: bool
       middlewareIndex*: int
+      pathMiddlewareIndex*: int
+      routeMiddlewares*: seq[Handler]
       app*: App
     
     Request* = ref object
@@ -25,6 +27,13 @@ type
 
     Handler* = proc(ctx: Context): Future[void] {.async, gcsafe.}
 
+    PathMiddleware* = ref object
+      pattern*: string
+      handler*: Handler
+      paramNames*: seq[string]
+      compiledRegex*: Regex
+      isExact*: bool
+
     Route* = ref object 
       httpMethod*: HttpMethod
       pattern*: string
@@ -32,13 +41,15 @@ type
       paramNames*: seq[string]
       compiledRegex*: Regex
       isExact*: bool
-
+      middlewares*: seq[Handler]  
+      
     App* = ref object
       routes*: seq[Route]
       middlewares*: seq[Handler]
+      pathMiddlewares*: seq[PathMiddleware]
       port*: int
       staticRoot*: string
-      routesByMethod*: Table[HttpMethod, seq[Route]]  # Method-grouped routes
+      routesByMethod*: Table[HttpMethod, seq[Route]]
       exactRoutes*: Table[string, Route]
       
     SendFileOptions* = object
@@ -47,4 +58,4 @@ type
       maxAge*: int
       lastModified*: bool
       etag*: bool
-      dotfiles*: string  # "allow", "deny", "ignore"
+      dotfiles*: string

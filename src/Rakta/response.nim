@@ -120,6 +120,45 @@ proc setHeader*(ctx: Context, name: string, value: string): Context =
   ctx.res.headers[name] = value
   return ctx
 
+proc getHeader*(ctx: Context, name: string): string =
+  ## Retrieves a header value by name from the request.
+  ## 
+  ## This function looks up a header in the request headers and returns
+  ## its value. Header names are case-insensitive. If the header is not
+  ## found, returns an empty string.
+  ## 
+  ## Parameters:
+  ##   name: Header name to retrieve (case-insensitive)
+  ## 
+  ## Returns:
+  ##   string: Header value or empty string if not found
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   let contentType = ctx.getHeader("Content-Type")
+  ##   let userAgent = ctx.getHeader("User-Agent")
+  ##   let auth = ctx.getHeader("Authorization")
+  ##   
+  ##   if auth != "":
+  ##     echo "Authorization header found: ", auth
+  ##   
+  ##   # Case-insensitive lookup
+  ##   let accept = ctx.getHeader("accept")  # Same as "Accept"
+  ##   ```
+  # HTTP headers are case-insensitive, so we need to do case-insensitive lookup
+  let lowerName = name.toLowerAscii()
+  
+  # Check if headers exist in request
+  if ctx.req.headers.hasKey(name):
+    return ctx.req.headers[name]
+  
+  # Try case-insensitive lookup
+  for key, value in ctx.req.headers.pairs:
+    if key.toLowerAscii() == lowerName:
+      return value
+  
+  return ""
+
 proc setCookie*(ctx: Context, name: string, value: string, httpOnly: bool = false, secure: bool = false, sameSite: string = "Lax"): Context =
   ## Sets a cookie in the HTTP response.
   ## 

@@ -16,9 +16,6 @@
   </a>
 </p>
 
-> [!WARNING]
-> This project is still in development stage.
-
 ## Features
 
 - **Fast & Efficient**: Built with Nim's performance in mind

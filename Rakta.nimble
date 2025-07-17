@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "DitzDev"
-description   = "Express.js like, Powerful, Fast, and Minimalist web Framework for Nim. Focus on your Backend."
+description   = "Express.js like, Powerful, Fast, and Minimalist Web Framework for Nim. Focus on your Backend."
 license       = "MIT"
 srcDir        = "src"
 
