@@ -99,6 +99,24 @@ proc status*(ctx: Context, code: HttpCode): Context =
   ctx.res.status = code
   return ctx
 
+proc endRes*(ctx: Context): Future[void] {.async.} =
+  ## Ends the response process without sending any body content.
+  ## This is useful for sending responses with status codes only,
+  ## similar to Express.js res.end().
+  ## 
+  ## The response will be sent with the current status code and headers,
+  ## but with an empty body.
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   ctx.status(Http400)
+  ##   await ctx.endRes()
+  ##   ```
+  if ctx.res.sent:
+    return
+  ctx.res.body = ""
+  ctx.res.sent = true
+
 proc setHeader*(ctx: Context, name: string, value: string): Context =
   ## Sets a response header with the specified name and value.
   ## 

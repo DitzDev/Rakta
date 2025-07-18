@@ -16,7 +16,7 @@ export
 
 proc addBrandingHeaders(ctx: Context): Future[void] {.async, gcsafe.} =
   discard ctx.setHeader("X-Powered-By", "Rakta")
-  discard ctx.setHeader("X-Rakta-Version", "0.1.0")
+  discard ctx.setHeader("X-Rakta-Version", "0.1.1")
   await ctx.next()
 
 proc executeMiddlewares(ctx: Context): Future[void] {.async, gcsafe.} =
@@ -253,6 +253,61 @@ proc patch*(app: App, pattern: string, handler: Handler) =
   ##   )
   ##   ```
   app.addRoute(HttpPatch, pattern, handler)
+
+proc head*(app: App, pattern: string, handlers: varargs[Handler]) =
+  ## Registers a HEAD route handler for the specified pattern.
+  ## 
+  ## HEAD method is identical to GET except that the server MUST NOT
+  ## return a message-body in the response. This is useful for retrieving
+  ## meta-information about the resource without transferring the actual content.
+  ## 
+  ## Parameters:
+  ##   pattern: URL pattern to match (e.g., "/api/users/:id", "/health")
+  ##   handlers: Variable number of handlers where the last one is the route handler
+  ##            and preceding ones are middlewares
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   app.head("/api/users/:id", proc(ctx: Context): Future[void] {.async.} =
+  ##     let userId = ctx.getParam("id")
+  ##     # Set appropriate headers
+  ##     discard ctx.setHeader("Content-Type", "application/json")
+  ##     discard ctx.setHeader("Content-Length", "156")
+  ##     # End without body
+  ##     await ctx.endRes()
+  ##   )
+  ##   ```
+  if handlers.len == 0:
+    return
+  
+  let routeHandler = handlers[handlers.len - 1]
+  let middlewares = if handlers.len > 1: handlers[0..handlers.len-2] else: @[]
+  
+  app.addRoute(HttpHead, pattern, routeHandler, middlewares)
+
+proc head*(app: App, pattern: string, handler: Handler) =
+  ## Registers a HEAD route handler for the specified pattern.
+  ## 
+  ## HEAD method is identical to GET except that the server MUST NOT
+  ## return a message-body in the response. This is useful for retrieving
+  ## meta-information about the resource without transferring the actual content.
+  ## 
+  ## Parameters:
+  ##   pattern: URL pattern to match (e.g., "/api/users/:id", "/health")
+  ##   handler: Async function to handle the request
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   app.head("/api/users/:id", proc(ctx: Context): Future[void] {.async.} =
+  ##     let userId = ctx.getParam("id")
+  ##     # Set appropriate headers
+  ##     discard ctx.setHeader("Content-Type", "application/json")
+  ##     discard ctx.setHeader("Content-Length", "156")
+  ##     # End without body
+  ##     await ctx.endRes()
+  ##   )
+  ##   ```
+  app.addRoute(HttpHead, pattern, handler)
 
 proc put*(app: App, pattern: string, handlers: varargs[Handler]) =
   ## Registers a PUT route handler with optional middlewares.
