@@ -13,9 +13,6 @@ skipDirs = @["tests", "public"]
 
 requires "nim >= 2.2.4"
 
-when not defined(windows):
-  requires "httpbeast >= 0.4.0"
-  
 task docs, "generate documentation":
   exec("mkdir -p htmldocs/Rakta")
   --project
