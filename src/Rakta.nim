@@ -16,7 +16,7 @@ export
 
 proc addBrandingHeaders(ctx: Context): Future[void] {.async, gcsafe.} =
   discard ctx.setHeader("X-Powered-By", "Rakta")
-  discard ctx.setHeader("X-Rakta-Version", "0.1.1")
+  discard ctx.setHeader("X-Rakta-Version", "0.2.0")
   await ctx.next()
 
 proc executeMiddlewares(ctx: Context): Future[void] {.async, gcsafe.} =
