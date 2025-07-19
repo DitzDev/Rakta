@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.0"
+version       = "0.2.1"
 author        = "DitzDev"
 description   = "Express.js like, Powerful, Fast, and Minimalist Web Framework for Nim. Focus on your Backend."
 license       = "MIT"
