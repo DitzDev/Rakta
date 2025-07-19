@@ -29,9 +29,14 @@
 - **File Upload**: Support for file uploads and downloads
 
 ## Installation
-
+1. Add `Rakta` to your .nimble file:
 ```bash
-nimble install rakta
+nimble add Rakta
+```
+
+2. Install Rakta:
+```bash
+nimble install Rakta
 ```
 
 ## Quick Start
