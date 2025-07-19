@@ -43,6 +43,12 @@ type
       isExact*: bool
       middlewares*: seq[Handler]  
       
+    Router* = ref object
+      routes*: seq[Route]
+      middlewares*: seq[Handler]
+      pathMiddlewares*: seq[PathMiddleware]
+      prefix*: string
+    
     App* = ref object
       routes*: seq[Route]
       middlewares*: seq[Handler]

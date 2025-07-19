@@ -3,7 +3,7 @@ import types
 
 var regexCache = initTable[string, Regex]()
 
-proc extractParamNames(pattern: string): seq[string] =
+proc extractParamNames*(pattern: string): seq[string] =
   result = @[]
   let regex = re":([a-zA-Z_][a-zA-Z0-9_]*)"
   var matches: array[1, string]
@@ -12,7 +12,7 @@ proc extractParamNames(pattern: string): seq[string] =
     result.add(matches[0])
     start = pattern.find(regex, matches, start) + matches[0].len + 1
 
-proc patternToRegex(pattern: string): Regex =
+proc patternToRegex*(pattern: string): Regex =
   if regexCache.hasKey(pattern):
     return regexCache[pattern]
   
