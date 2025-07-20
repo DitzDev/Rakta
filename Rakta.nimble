@@ -19,3 +19,5 @@ task docs, "generate documentation":
   --git.url: "https://github.com/DitzDev/Rakta"
   --git.commit: main
   setCommand "doc", "src/Rakta.nim"
+
+requires "checksums >= 0.2.1"

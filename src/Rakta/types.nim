@@ -1,4 +1,4 @@
-import asyncdispatch, httpcore, tables, re
+import asyncdispatch, httpcore, tables, re, times, asynchttpserver
 
 type
     Context* = ref object
@@ -57,6 +57,7 @@ type
       staticRoot*: string
       routesByMethod*: Table[HttpMethod, seq[Route]]
       exactRoutes*: Table[string, Route]
+      hotReloadWatcher*: FileWatcher
       
     SendFileOptions* = object
       headers*: Table[string, string]
@@ -65,3 +66,17 @@ type
       lastModified*: bool
       etag*: bool
       dotfiles*: string
+      
+    HotReloadConfig* = object
+      enabled*: bool
+      watchDirs*: seq[string]
+      excludePatterns*: seq[string]
+      port*: int
+      verbose*: bool
+  
+    FileWatcher* = ref object
+      config*: HotReloadConfig
+      fileTimestamps*: Table[string, Time]
+      server*: AsyncHttpServer
+      lastChangeTime*: float
+      changedFiles*: seq[string]

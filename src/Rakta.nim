@@ -1,5 +1,5 @@
 import asyncdispatch, asynchttpserver, httpcore, strutils, uri, tables
-import Rakta/types, Rakta/router, Rakta/response, Rakta/context, Rakta/cors, Rakta/static, Rakta/middleware, Rakta/Moro/router
+import Rakta/types, Rakta/router, Rakta/response, Rakta/context, Rakta/cors, Rakta/static, Rakta/middleware, Rakta/Moro/router, Rakta/hotreload
 
 export types, response, context, cors, router
 
@@ -549,8 +549,7 @@ proc handleRequest(app: App, httpReq: asynchttpserver.Request): Future[void] {.a
   except Exception as e:
     echo "Error handling request: ", e.msg
     await httpReq.respond(Http500, "Internal Server Error")
-
-
+ 
 proc listen*(app: App, port: int, callback: proc() = nil) {.async.} =
   ## Starts the HTTP server on the specified port.
   ## 
@@ -576,5 +575,58 @@ proc listen*(app: App, port: int, callback: proc() = nil) {.async.} =
   
   if callback != nil:
     callback()
+    
+  if app.hotReloadWatcher != nil:
+    asyncCheck app.hotReloadWatcher.start()
   
   await server.serve(Port(port), handleRequestWrapper)
+  
+proc useExperimentalFEHotReload*(app: App, watchDirs: seq[string] = @[]) =
+  ## Enable experimental frontend hot reload feature
+  ## This feature watches for changes in non-Nim files and automatically reloads the browser
+  ## 
+  ## Parameters:
+  ##   watchDirs: Directories to watch for changes (default: ["public", "static", "assets", "views"])
+  ## 
+  ## Features:
+  ##   - Watches specified directories for file changes
+  ##   - Ignores .nim files (for frontend only)
+  ##   - HTTP polling-based communication with browser (no external dependencies)
+  ##   - Smart resource reloading (CSS, images) when possible
+  ##   - Automatic fallback to full page reload
+  ##   - Only active in development mode (disabled in release builds)
+  ## 
+  ## Example:
+  ##   ```nim
+  ##   let app = newApp()
+  ##   app.useExperimentalFEHotReload()
+  ##   # or with custom directories
+  ##   app.useExperimentalFEHotReload(@["public", "assets", "templates"])
+  ##   ```
+  
+  let config = newHotReloadConfig(
+    watchDirs = watchDirs,
+    excludePatterns = @["*.nim", "*.exe", "*.log", "*.tmp", "node_modules", ".git", ".vscode"],
+    port = 3001,
+    verbose = true
+  )
+  
+  app.hotReloadWatcher = newFileWatcher(config)
+  
+  if config.enabled:
+    app.use(proc(ctx: Context): Future[void] {.async.} =
+      await ctx.next()
+
+      if ctx.res.headers.hasKey("Content-Type") and 
+         "text/html" in ctx.res.headers["Content-Type"] and
+         ctx.res.body.len > 0:
+        
+        let scriptWithPort = HOT_RELOAD_CLIENT_SCRIPT.replace("$PORT", $config.port)
+        
+        if "</body>" in ctx.res.body:
+          ctx.res.body = ctx.res.body.replace("</body>", scriptWithPort & "\n</body>")
+        elif "</html>" in ctx.res.body:
+          ctx.res.body = ctx.res.body.replace("</html>", scriptWithPort & "\n</html>")
+        else:
+          ctx.res.body = ctx.res.body & "\n" & scriptWithPort
+    )
