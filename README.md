@@ -27,7 +27,7 @@
 - **JSON Support**: Built-in JSON request/response handling
 - **Cookie Management**: Easy cookie setting and retrieval
 - **File Upload**: Support for file uploads and downloads
-- **WebSocket (Experimental)**: Rakta supports native WebSocket without any third-party dependencies.
+- **WebSocket (Experimental, need zlib)**: Rakta supports native WebSocket without any third-party dependencies.
 - **Frontend Hot-Reload (Experimental, Need to refresh browser to see changes)**: Simplify the development process.
 
 ## Installation
